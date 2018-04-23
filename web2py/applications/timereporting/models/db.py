@@ -87,6 +87,9 @@ auth = Auth(db, host_names=myconf.get('host.names'))
 service = Service()
 plugins = PluginManager()
 
+# EXTRA FIELDS FOR AUTH_USER
+auth.settings.extra_fields['auth_user']=[Field('Role', signature=True)]
+
 # -------------------------------------------------------------------------
 # create all tables needed by auth if not custom tables
 # -------------------------------------------------------------------------

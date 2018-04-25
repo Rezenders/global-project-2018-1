@@ -88,7 +88,7 @@ service = Service()
 plugins = PluginManager()
 
 # EXTRA FIELDS FOR AUTH_USER
-auth.settings.extra_fields['auth_user']=[Field('Role', signature=True)]
+auth.settings.extra_fields['auth_user']=[Field('Manager', type='boolean', default=False, writable=False),Field('Adress',type='string')]
 
 # -------------------------------------------------------------------------
 # create all tables needed by auth if not custom tables

@@ -20,8 +20,16 @@ def index():
     response.flash = T("Hello World")
     return dict(message=T('Welcome to web2py!'))
 
+def _add_to_students(form):
+    group_id = auth.id_group(role='students')
+    user_id = form.vars.id
+    if group_id == None:
+        group_id = auth.add_group('students', 'students group')
+    auth.add_membership(group_id, user_id)
+
 
 def user():
+    auth.settings.register_onaccept = _add_to_students
     """
     exposes:
     http://..../[app]/default/user/login

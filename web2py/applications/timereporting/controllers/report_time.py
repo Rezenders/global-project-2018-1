@@ -21,7 +21,7 @@ def new_time_report():
 
 
     if form.process().accepted:
-        # Notify manager
+        # TODO: Notify manager, insert row into TimeTracker with user_id and WorkShift id
         redirect(URL('timereporting','default', 'index'))
     elif form.errors:
         #form has errors

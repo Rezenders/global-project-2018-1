@@ -14,7 +14,7 @@ def new_time_report():
         labels['End_%d' % day] = '%s End' % DAYS_OF_WEEK[day-1]
     form = SQLFORM(db.WorkShift, labels=labels)
     form.vars.WeekStart = first_day
-    form.element('#WorkShift_WeekStart')['_readonly']=True 
+    form.element('#WorkShift_WeekStart')['_readonly']=True
     form.add_button('Back',URL('default', 'index'))
     form.add_button('Next Week', URL('new_time_report', vars={'startdate': next_week}))
     form.add_button('Previous Week', URL('new_time_report', vars={'startdate': previous_week}))
@@ -22,7 +22,7 @@ def new_time_report():
 
     if form.process().accepted:
         # Notify manager
-        redirect(URL('default'))
+        redirect(URL('timereporting','default', 'index'))
     elif form.errors:
         #form has errors
         response.flash = T('Form Errors')

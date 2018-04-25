@@ -1,4 +1,7 @@
 *.log
 *.pyc
 *.swp
-
+*.table
+web2py/applications/timereporting/databases/*
+web2py/applications/admin/sessions/*
+web2py/applications/timereporting/sessions/*

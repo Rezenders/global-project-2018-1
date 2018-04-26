@@ -88,7 +88,7 @@ service = Service()
 plugins = PluginManager()
 
 # EXTRA FIELDS FOR AUTH_USER
-auth.settings.extra_fields['auth_user']=[Field('Role', signature=True)]
+auth.settings.extra_fields['auth_user']=[Field('Adress',type='string', requires=IS_NOT_EMPTY())]
 
 # -------------------------------------------------------------------------
 # create all tables needed by auth if not custom tables
@@ -109,7 +109,7 @@ mail.settings.ssl = myconf.get('smtp.ssl') or False
 # configure auth policy
 # -------------------------------------------------------------------------
 auth.settings.registration_requires_verification = False
-auth.settings.registration_requires_approval = False
+auth.settings.registration_requires_approval = True
 auth.settings.reset_password_requires_verification = True
 
 # -------------------------------------------------------------------------

@@ -35,3 +35,11 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+*.log
+*.pyc
+*.swp
+*.table
+web2py/applications/timereporting/databases/*
+web2py/applications/admin/sessions/*
+web2py/applications/timereporting/sessions/*
+web2py/applications/timereporting/errors/*

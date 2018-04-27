@@ -47,14 +47,15 @@ def user():
     """
     return dict(form=auth())
 
-#@auth.requires_membership('manager')
-@auth.requires_login()
+@auth.requires_membership('manager')
 def register_student():
     form = SQLFORM(db.auth_user)
     if form.validate():
         admin_user = auth.user
         auth.get_or_create_user(form.vars)
+	_add_to_students(form)
         auth.user = admin_user
+
     return dict(form=form)
 
 @cache.action()

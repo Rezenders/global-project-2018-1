@@ -88,7 +88,7 @@ service = Service()
 plugins = PluginManager()
 
 # EXTRA FIELDS FOR AUTH_USER
-auth.settings.extra_fields['auth_user']=[Field('Adress',type='string', requires=IS_NOT_EMPTY())]
+auth.settings.extra_fields['auth_user']=[Field('studentID', type='integer', unique=True), Field('Adress',type='string', requires=IS_NOT_EMPTY())]
 
 # -------------------------------------------------------------------------
 # create all tables needed by auth if not custom tables

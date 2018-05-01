@@ -3,10 +3,10 @@
 .top-buffer { margin-top:10px; }
 </style>
 
-<h1>Registered students</h1>
+<div><h1>Registered users</h1></div>
 <div class='container'>
 {{=DIV( DIV(B('First Name'), _class='col-sm-3'), DIV(B('Email'), _class='col-sm-3'), DIV(B('Student ID'), _class='col-sm-3'), _class='row')}}
 {{for student in students:}}
-	{{=DIV( DIV(student.first_name, _class='col-sm-3'), DIV(student.email, _class='col-sm-3'), DIV(student.studentID, _class='col-sm-3'), INPUT( _type="button", _class="btn btn-sm btn-danger", _value="Delete User"), _class='row top-buffer')}}
+	{{=DIV( DIV(student.first_name, _class='col-sm-3'), DIV(student.email, _class='col-sm-3'), DIV(student.studentID, _class='col-sm-3'), A('Delete',_href='delete_user/'+str(student.studentID), _class="btn btn-sm btn-danger"), _class='row top-buffer')}}
 {{pass}}
 </div>

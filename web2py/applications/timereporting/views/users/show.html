@@ -1,0 +1,12 @@
+{{extend 'layout.html'}}
+<style>
+.top-buffer { margin-top:10px; }
+</style>
+
+<div><h1>Registered users</h1></div>
+<div class='container'>
+{{=DIV( DIV(B('First Name'), _class='col-sm-3'), DIV(B('Email'), _class='col-sm-3'), DIV(B('User ID'), _class='col-sm-3'), _class='row')}}
+{{for user in users:}}
+	{{=DIV( DIV(user.first_name, _class='col-sm-3'), DIV(user.email, _class='col-sm-3'), DIV(user.studentID, _class='col-sm-3'), A('Delete',_href='delete_user/'+str(user.studentID), _class="btn btn-sm btn-danger"), _class='row top-buffer')}}
+{{pass}}
+</div>

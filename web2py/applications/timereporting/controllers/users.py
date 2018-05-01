@@ -18,8 +18,8 @@ def register():
 
 @auth.requires_membership('manager')
 def show():
-	students = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
-	return dict(students=students)
+	users = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
+	return dict(users=users)
 
 @auth.requires_membership('manager')
 def delete_user():

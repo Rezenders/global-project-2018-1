@@ -18,7 +18,7 @@ def register():
 
 @auth.requires_membership('manager')
 def show():
-	users = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
+	users = db(db.auth_user.studentID != auth.user.studentID).select(db.auth_user.ALL, orderby=db.auth_user.first_name)
 	return dict(users=users)
 
 @auth.requires_membership('manager')

@@ -23,4 +23,6 @@ def show():
 
 @auth.requires_membership('manager')
 def delete_user():
-	return "hello world"	
+	user_id = request.args[0]	
+	db(db.auth_user.studentID==user_id).delete()
+	return redirect(URL('show'))

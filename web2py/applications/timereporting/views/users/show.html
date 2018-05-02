@@ -7,6 +7,13 @@
 <div class='container'>
 {{=DIV( DIV(B('First Name'), _class='col-sm-3'), DIV(B('Email'), _class='col-sm-3'), DIV(B('User ID'), _class='col-sm-3'), _class='row')}}
 {{for user in users:}}
-	{{=DIV( DIV(user.first_name, _class='col-sm-3'), DIV(user.email, _class='col-sm-3'), DIV(user.studentID, _class='col-sm-3'), A('Delete',_href='delete_user/'+str(user.studentID), _class="btn btn-sm btn-danger"), _class='row top-buffer')}}
+	<div class='row top-buffer'>
+	{{=DIV(user.first_name, _class='col-sm-3')}}
+	{{=DIV(user.email, _class='col-sm-3')}}
+	{{=DIV(user.studentID, _class='col-sm-3')}}
+	{{if auth.has_membership(auth.id_group('students'), user.id) :}}
+		{{=A('Delete',_href='delete_user/'+str(user.studentID), _class="btn btn-sm btn-danger")}}
+	{{pass}}
+	</div>
 {{pass}}
 </div>

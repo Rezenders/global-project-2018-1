@@ -7,8 +7,7 @@
 # - user is required for authentication and authorization
 # - download is for downloading files uploaded in the db (does streaming)
 # -------------------------------------------------------------------------
-
-
+from users import _add_to_students
 def index():
     """
     example action using the internationalization operator T and flash

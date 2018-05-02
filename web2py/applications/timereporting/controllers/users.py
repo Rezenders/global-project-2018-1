@@ -1,9 +1,4 @@
-def _add_to_students(form):
-    group_id = auth.id_group(role='students')
-    user_id = form.vars.id
-    if group_id == None:
-        group_id = auth.add_group('students', 'students group')
-    auth.add_membership(group_id, user_id)
+from users import _add_to_students
 
 @auth.requires_membership('manager')
 def register():

@@ -1,19 +1,22 @@
 {{extend 'layout.html'}}
 <style>
-.top-buffer { margin-top:10px; }
+.top-buffer { margin-top:1px; }
+.delete-button { position:absolute; right:0}
 </style>
 
 <div><h1>Registered users</h1></div>
 <div class='container'>
-{{=DIV( DIV(B('First Name'), _class='col-sm-3'), DIV(B('Email'), _class='col-sm-3'), DIV(B('User ID'), _class='col-sm-3'), _class='row')}}
+{{=DIV( DIV(B('First Name'), _class='col-md-3'), DIV(B('Email'), _class='col-md-3'), DIV(B('User ID'), _class='col-md-3'), _class='row')}}
+<hr>
 {{for user in users:}}
 	<div class='row top-buffer'>
-	{{=DIV(user.first_name, _class='col-sm-3')}}
-	{{=DIV(user.email, _class='col-sm-3')}}
-	{{=DIV(user.studentID, _class='col-sm-3')}}
+	{{=DIV(user.first_name, _class='col-md-3')}}
+	{{=DIV(user.email, _class='col-md-3')}}
+	{{=DIV(user.studentID, _class='col-md-3')}}
 	{{if auth.has_membership(auth.id_group('students'), user.id) :}}
-		{{=A('Delete',_href='delete_user/'+str(user.studentID), _class="btn btn-sm btn-danger")}}
+    {{=DIV(A('Delete',_href='delete_user/'+str(user.studentID), _class="btn btn-md btn-danger delete-button"), _class='col-md-3')}}
 	{{pass}}
 	</div>
+    <hr>
 {{pass}}
 </div>

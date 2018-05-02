@@ -24,12 +24,13 @@ response.meta.generator = myconf.get('app.generator')
 # ----------------------------------------------------------------------------------------------------------------------
 response.google_analytics_id = None
 
-# ----------------------------------------------------------------------------------------------------------------------
+# -----------------i-----------------------------------------------------------------------------------------------------
 # this is the main application menu add/remove items as required
 # ----------------------------------------------------------------------------------------------------------------------
 
 response.menu = [
-    (T('Home'), False, URL('default', 'index'), [])
+    (T('Home'), False, URL('default', 'index'), []),
+    ('GitHub', False, 'https://github.com/gus9182/global-project-2018-1'),
 ]
 
 DEVELOPMENT_MENU = True
@@ -143,6 +144,21 @@ def _():
         ]),
     ]
 
+
+def manager_menu():
+    try:
+        if auth.has_membership(auth.id_group('manager'), auth.user.id):
+            response.menu += [
+                ('Manager', False, '#', [
+                 ('Show Users', False, URL('timereporting', 'users', 'show')),
+                 ('Add Students', False, URL('timereporting', 'users', 'register')),
+                 ]),
+            ]
+    except(AttributeError):
+        pass
+
+
+manager_menu()
 
 if DEVELOPMENT_MENU:
     _()

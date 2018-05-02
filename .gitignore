@@ -39,6 +39,8 @@ pip-log.txt
 *.pyc
 *.swp
 *.table
+*.pid
+web2py/parameters_8000.py
 web2py/applications/timereporting/databases/*
 web2py/applications/admin/sessions/*
 web2py/applications/timereporting/sessions/*

@@ -81,7 +81,7 @@ response.form_label_separator = myconf.get('forms.separator') or ''
 # -------------------------------------------------------------------------
 
 from gluon.tools import Auth, Service, PluginManager
-
+from gluon import current
 # host names must be a list of allowed host names (glob syntax allowed)
 auth = Auth(db, host_names=myconf.get('host.names'))
 service = Service()
@@ -112,6 +112,7 @@ auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = True
 auth.settings.reset_password_requires_verification = True
 
+current.auth = auth
 # -------------------------------------------------------------------------
 # Define your tables below (or better in another model file) for example
 #

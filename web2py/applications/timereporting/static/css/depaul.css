@@ -1,0 +1,12 @@
+.navbar_depaul {background-color:#e4ebf8; border-color:#e4ebf8;}
+
+#depaul_logo { color:#1d4267;}
+
+.menu_depaul{font-color:#1d4267;}
+.menu_depaul li a{color:#1d4267 !important;}
+.menu_li {background-color:#e4ebf8 !important;}
+.navbar-default .navbar-nav > li > a {color:#1d4267;}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {color:#ffffff !important;background-color:#1d4267 !important;}
+.navbar-default .navbar-nav > li > a:hover {color:#ffffff !important;background-color:#1d4267 !important;}
+.menu_ul {background-color:#e4ebf8; color:#1d4267;}
+.dropdown-menu {background-color:#e4ebf8; color:#1d4267;}

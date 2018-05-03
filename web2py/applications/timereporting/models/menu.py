@@ -7,7 +7,7 @@
 
 response.logo = A(B('DePaul iD-Lab'),
                   _class="navbar-brand", _href="https://depaulidlab.com/",
-                  _id="web2py-logo")
+                  _id="depaul_logo")
 response.title = request.application.replace('_', ' ').title()
 response.subtitle = ''
 

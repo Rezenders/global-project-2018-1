@@ -3,10 +3,11 @@
 .top-buffer { margin-top:1px; }
 .delete-button { position:absolute; right:0}
 </style>
+<link rel="stylesheet" href="{{=URL('static','css/depaul.css')}}"/>
 
-<div><h1>Registered users</h1></div>
+<div><h1 class="depaul">Registered users</h1></div>
 <div class='container'>
-{{=DIV( DIV(B('First Name'), _class='col-md-3'), DIV(B('Email'), _class='col-md-3'), DIV(B('User ID'), _class='col-md-3'), _class='row')}}
+{{=DIV( DIV(B('First Name'), _class='col-md-3 depaul'), DIV(B('Email'), _class='col-md-3 depaul'), DIV(B('Employee ID'), _class='col-md-3 depaul'), _class='row')}}
 <hr>
 {{for user in users:}}
 	<div class='row top-buffer'>

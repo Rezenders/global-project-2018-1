@@ -1,15 +1,15 @@
 @auth.requires_membership('manager')
 def send_hours():
-    tracker_id = request.args[0]
-    tracker = db(db.TimeTracker.id == tracker_id).select(db.TimeTracker.ALL)
+    WorkWeek_id = request.args[0]
+    WeekWorked = db(db.WorkWeek.id == WorkWeek_id).select(db.WorkWeek.ALL)
 
     try:
-        user_id = tracker[0].user_id
-        workshift_id = tracker[0].WorkShift_id
-        tracker_status = tracker[0].Approved
+        user_id = WeekWorked[0].user_id
+        #workshift_id = tracker[0].WorkShift_id
+        tracker_status = WorkWeek[0].Approved_Status
 
         student = db(db.auth_user.id == user_id).select(db.auth_user.ALL)
-        workshift = db(db.WorkShift.id == workshift_id).select(db.WorkShift.ALL)
+        #workshift = db(db.WorkShift.id == workshift_id).select(db.WorkShift.ALL)
 
         send_to = student[0].email
 
@@ -19,7 +19,7 @@ def send_hours():
 
         context = dict(
                 name=student[0].first_name,
-                start=workshift[0].WeekStart,
+                start=WorkWeek[0].Monday,
                 status=status)
             
         message = response.render('send_hours.html', context)

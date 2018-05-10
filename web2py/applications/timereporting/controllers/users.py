@@ -1,6 +1,6 @@
 from users import _add_to_students
 
-@auth.requires_membership('manager')
+@auth.requires_membership('Manager')
 def register():
     form = SQLFORM(db.auth_user)
     if form.validate():
@@ -11,15 +11,15 @@ def register():
 
     return dict(form=form)
 
-@auth.requires_membership('manager')
+@auth.requires_membership('Manager')
 def show():
 	users = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
 	return dict(users=users)
 
-@auth.requires_membership('manager')
+@auth.requires_membership('Manager')
 def delete_user():
 	user_id = request.args[0]	
-	db(db.auth_user.studentID==user_id).delete()
+	db(db.auth_user.id==user_id).delete()
 	return redirect(URL('show'))
     
 @auth.requires_membership('students')

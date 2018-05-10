@@ -93,7 +93,7 @@ def _():
 
 def manager_menu():
     try:
-        if auth.has_membership(auth.id_group('manager'), auth.user.id):
+        if auth.has_membership(auth.id_group('Manager'), auth.user.id):
             response.menu += [
                 ('Manager', False, '#', [
                  ('Show Users', False, URL('timereporting', 'users', 'show')),

@@ -152,5 +152,6 @@ def ViewStudentHours():
             db.WorkWeek.Approved_Status,
             db.WorkWeek.Total_Hours],
         field_id=db.WorkWeek.id,
+        create=False,
         deletable=False)
     return dict(hours=var)

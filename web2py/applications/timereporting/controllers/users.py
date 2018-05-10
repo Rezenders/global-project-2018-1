@@ -140,25 +140,17 @@ def AddHours():
 
 @auth.requires_membership('Manager')
 def ViewStudentHours():
-    db.WorkWeek.Monday.writable = False
-    db.WorkWeek.Sunday.writable = False
-    db.WorkWeek.user_id.writable = False
-    bar = db(
-        (db.WorkShift.WorkWeek_id == db.WorkWeek.id)).select(
-        db.WorkShift.WorkedTime.sum())
-    ts = bar.first()[db.WorkShift.WorkedTime.sum()]
-    thequery = (db.WorkShift.WorkWeek_id == db.WorkWeek.id) & (db.auth_user.id)
+    thequery = (db.WorkShift.WorkWeek_id == db.WorkWeek.id) & (db.auth_user.id == db.WorkWeek.user_id)
+    
     var = SQLFORM.grid(
         query=thequery,
         fields=[
+            db.auth_user.first_name,
             db.WorkShift.ShiftDay,
             db.WorkShift.WorkedTime,
             db.WorkShift.Description,
-            db.WorkWeek.Monday,
-            db.WorkWeek.Sunday,
             db.WorkWeek.Approved_Status,
             db.WorkWeek.Total_Hours],
         field_id=db.WorkWeek.id,
-        create=False,
         deletable=False)
-    return dict(a=var, b=ts)
+    return dict(hours=var)

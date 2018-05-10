@@ -98,13 +98,26 @@ def manager_menu():
                 ('Manager', False, '#', [
                  ('Show Users', False, URL('timereporting', 'users', 'show')),
                  ('Add Students', False, URL('timereporting', 'users', 'register')),
+                 ('View Students Hours', False, URL('timereporting','users', 'ViewStudentHours')),
                  ]),
             ]
     except(AttributeError):
         pass
 
+def student_menu():
+    try:
+        if auth.has_membership(auth.id_group('students'), auth.user.id):
+            response.menu += [
+                ('Student', False, '#', [
+                 ('Add Hours', False, URL('timereporting', 'users', 'AddHours')),
+                 ('View Hours', False, URL('timereporting', 'users', 'ViewHours')),
+                 ]),
+            ]
+    except(AttributeError):
+        pass
 
 manager_menu()
+student_menu()
 
 if DEVELOPMENT_MENU:
     _()

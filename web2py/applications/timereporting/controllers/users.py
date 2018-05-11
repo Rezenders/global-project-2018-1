@@ -27,15 +27,9 @@ def delete_user():
 
 @auth.requires_membership('students')
 def ViewHours():
-
-    bar = db(
-        (db.WorkWeek.user_id == auth.user.id) & (
-            db.WorkShift.WorkWeek_id == db.WorkWeek.id)).select(
-        db.WorkShift.WorkedTime.sum())
-    ts = bar.first()[db.WorkShift.WorkedTime.sum()]
     thequery = (db.WorkWeek.user_id == auth.user.id) & (
         db.WorkShift.WorkWeek_id == db.WorkWeek.id)
-    var = SQLFORM.grid(
+    grid = SQLFORM.grid(
         query=thequery,
         fields=[
             db.WorkShift.ShiftDay,
@@ -43,8 +37,10 @@ def ViewHours():
             db.WorkShift.Description,
             db.WorkWeek.Monday,
             db.WorkWeek.Sunday],
-        create=False)
-    return dict(a=var, b=ts)
+        create=False,
+        details=False,
+        )
+    return dict(grid=grid)
 
 
 @auth.requires_membership('students')

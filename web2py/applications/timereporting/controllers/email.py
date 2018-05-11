@@ -23,5 +23,4 @@ def send_hours():
                                 message=message)
     except:
         pass
-
-    return redirect(URL('timereporting', 'default', 'index'))
+    return redirect(URL('timereporting','users',request.args[1]))

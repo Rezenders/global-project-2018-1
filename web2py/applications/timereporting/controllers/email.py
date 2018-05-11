@@ -14,7 +14,9 @@ def send_hours():
         context = dict(
                 name=student[0].first_name,
                 start=WeekWorked[0].Monday,
-                status=tracker_status)
+                status=tracker_status,
+                comments=WeekWorked[0].Manager_Comment,
+                )
             
         message = response.render('send_hours.html', context)
 

@@ -166,5 +166,6 @@ def ViewStudentHours():
             deletable = False,
             details = False,
             onupdate = week_update,
+            editable = dict(WorkWeek = True, WorkShift = False)
             )
     return dict(hours=grid)

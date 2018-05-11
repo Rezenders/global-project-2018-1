@@ -1,6 +1,5 @@
 from users import _add_to_students
 
-
 @auth.requires_membership('Manager')
 def register():
     form = SQLFORM(db.auth_user)
@@ -137,21 +136,35 @@ def AddHours():
 
     return dict(a=var, b=md)
 
-
 @auth.requires_membership('Manager')
 def ViewStudentHours():
-    thequery = (db.WorkShift.WorkWeek_id == db.WorkWeek.id) & (db.auth_user.id == db.WorkWeek.user_id)
+    def week_update(form):
+        return redirect(URL(a='timereporting',c='email',f='send_hours', args=[ str(form.vars.id), 'ViewStudentHours']))
+
+    db.WorkWeek.Monday.writable = False
+    db.WorkWeek.Sunday.writable = False
+    db.WorkWeek.user_id.writable = False
+    db.WorkWeek.Total_Hours.writable = False
     
-    var = SQLFORM.grid(
-        query=thequery,
-        fields=[
-            db.auth_user.first_name,
-            db.WorkShift.ShiftDay,
-            db.WorkShift.WorkedTime,
-            db.WorkShift.Description,
-            db.WorkWeek.Approved_Status,
-            db.WorkWeek.Total_Hours],
-        field_id=db.WorkWeek.id,
-        create=False,
-        deletable=False)
-    return dict(hours=var)
+    fields_week = [
+        db.WorkWeek.Monday,
+        db.WorkWeek.Sunday,
+        db.WorkWeek.Approved_Status,
+        db.WorkWeek.Total_Hours,
+    ]
+
+    fields_shift = [
+        db.WorkShift.ShiftDay,
+        db.WorkShift.WorkedTime,
+        db.WorkShift.Description,
+    ]
+    grid = SQLFORM.smartgrid(
+            db.WorkWeek,
+            linked_tables=['WorkShift'],
+            fields = dict(WorkWeek = fields_week, WorkShift = fields_shift),
+            create = False,
+            deletable = False,
+            details = False,
+            onupdate = week_update,
+            )
+    return dict(hours=grid)

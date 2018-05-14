@@ -29,6 +29,7 @@ def delete_user():
 def ViewHours():
     thequery = (db.WorkWeek.user_id == auth.user.id) & (
         db.WorkShift.WorkWeek_id == db.WorkWeek.id)
+    links = [dict(header="", body = lambda row: edit_but(row))]
     grid = SQLFORM.grid(
         query=thequery,
         fields=[
@@ -37,11 +38,38 @@ def ViewHours():
             db.WorkShift.Description,
             db.WorkWeek.Monday,
             db.WorkWeek.Sunday],
-        create=False,
-        details=False,
+        create = False,
+        details = False,
+        editable = False,
+        links = links,
         )
     return dict(grid=grid)
 
+def edit_but(row):
+    workshift = db(db.WorkShift.id == row.WorkShift.id).select(db.WorkShift.WorkWeek_id)
+    week = db(db.WorkWeek.id == workshift[0].WorkWeek_id).select(db.WorkWeek.Approved_Status)
+    ret = ""
+    if week[0].Approved_Status == 'Approved':
+        ret = A('Edit',_class='button btn btn-default',_href=URL(f="edit_view_hours", args=[row.WorkShift.id]))        
+    return ret
+
+@auth.requires_login()
+def edit_view_hours():
+    ws_id = request.args[0]
+    ws = db(db.WorkShift.id == ws_id).select(db.WorkShift.WorkWeek_id)
+    week = db(db.WorkWeek.id == ws[0].WorkWeek_id).select(db.WorkWeek.user_id)
+    if auth.user.id == week[0].user_id:
+        db.WorkShift.id.writable = False
+        db.WorkShift.id.readable = False
+        db.WorkShift.WorkWeek_id.writable = False
+        db.WorkShift.WorkWeek_id.readable = False
+       
+        form = SQLFORM(db.WorkShift, ws_id)
+        if form.process().accepted:
+            redirect(URL(f="ViewHours"))
+        return dict(form=form)
+    else: 
+        return redirect(URL(f="ViewHours"))
 
 @auth.requires_membership('students')
 def AddHours():
@@ -135,7 +163,8 @@ def AddHours():
 @auth.requires_membership('Manager')
 def ViewStudentHours():
     def week_update(form):
-        return redirect(URL(a='timereporting',c='email',f='send_hours', args=[ str(form.vars.id), 'ViewStudentHours']))
+        week_id = form.vars.id
+        return redirect(URL(a='timereporting',c='email',f='send_hours', args=[ str(week_id), 'ViewStudentHours']))
 
     db.WorkWeek.Monday.writable = False
     db.WorkWeek.Sunday.writable = False

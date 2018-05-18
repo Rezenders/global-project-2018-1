@@ -30,6 +30,9 @@ def ViewHours():
     thequery = (db.WorkWeek.user_id == auth.user.id) & (
         db.WorkShift.WorkWeek_id == db.WorkWeek.id)
     links = [dict(header="", body = lambda row: edit_but(row))]
+    export_classes = dict(csv=True, json=False, html=False,
+                          tsv=False, xml=False, csv_with_hidden_cols=False,
+                          tsv_with_hidden_cols=False)
     grid = SQLFORM.grid(
         query=thequery,
         fields=[
@@ -42,6 +45,7 @@ def ViewHours():
         details = False,
         editable = False,
         links = links,
+        exportclasses=export_classes
         )
     return dict(grid=grid)
 
@@ -57,6 +61,7 @@ def edit_but(row):
 def edit_view_hours():
     ws_id = request.args[0]
     ws = db(db.WorkShift.id == ws_id).select(db.WorkShift.WorkWeek_id)
+    ws.update(Last_Changed=request.now)
     week = db(db.WorkWeek.id == ws[0].WorkWeek_id).select(db.WorkWeek.user_id)
     if auth.user.id == week[0].user_id:
         db.WorkShift.id.writable = False
@@ -183,6 +188,9 @@ def ViewStudentHours():
         db.WorkShift.WorkedTime,
         db.WorkShift.Description,
     ]
+    export_classes = dict(csv=True, json=False, html=False,
+                          tsv=False, xml=False, csv_with_hidden_cols=False,
+                          tsv_with_hidden_cols=False)
     grid = SQLFORM.smartgrid(
             db.WorkWeek,
             linked_tables=['WorkShift'],
@@ -191,6 +199,7 @@ def ViewStudentHours():
             deletable = False,
             details = False,
             onupdate = week_update,
-            editable = dict(WorkWeek = True, WorkShift = False)
+            editable = dict(WorkWeek = True, WorkShift = False),
+            exportclasses=export_classes
             )
     return dict(hours=grid)

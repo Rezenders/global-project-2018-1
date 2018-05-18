@@ -5,5 +5,6 @@ db.define_table(
     Field('ShiftDay', 'date'),
     Field('WorkedTime', 'double'),
     Field('Description', 'string'),
-    Field('WorkWeek_id','reference WorkWeek')
+    Field('WorkWeek_id','reference WorkWeek'),
+    Field('Last_Changed', 'datetime', default=request.now)
 )

@@ -55,7 +55,7 @@ def edit_but(row):
     week = db(db.WorkWeek.id == workshift[0].WorkWeek_id).select(db.WorkWeek.Approved_Status)
     ret = ""
     if week[0].Approved_Status != 'Approved':
-        ret = A('Edit',_class='button btn btn-default',_href=URL(f="edit_view_hours", args=[row.WorkShift.id]))        
+        ret = A('Edit',_class='button btn btn-default',_href=URL(f="edit_view_hours", args=[row.WorkShift.id]))
     return ret
 
 @auth.requires_login()
@@ -70,13 +70,13 @@ def edit_view_hours():
         db.WorkShift.id.readable = False
         db.WorkShift.WorkWeek_id.writable = False
         db.WorkShift.WorkWeek_id.readable = False
-       
+
         form = SQLFORM(db.WorkShift, ws_id)
         if form.process().accepted:
 
             redirect(URL(f="ViewHours"))
         return dict(form=form)
-    else: 
+    else:
         return redirect(URL(f="ViewHours"))
 
 @auth.requires_membership('students')
@@ -178,15 +178,15 @@ def ViewStudentHours():
     db.WorkWeek.Sunday.writable = False
     db.WorkWeek.user_id.writable = False
     db.WorkWeek.Total_Hours.writable = False
-    
+
     fields_week = [
+        db.WorkWeek.user_id,
         db.WorkWeek.Monday,
         db.WorkWeek.Sunday,
-        db.WorkWeek.Approved_Status,
         db.WorkWeek.Total_Hours,
-        db.WorkWeek.user_id
+        db.WorkWeek.Approved_Status,
     ]
-    
+
 
     fields_shift = [
         db.WorkShift.ShiftDay,
@@ -196,6 +196,8 @@ def ViewStudentHours():
     export_classes = dict(csv=True, json=False, html=False,
                           tsv=False, xml=False, csv_with_hidden_cols=False,
                           tsv_with_hidden_cols=False)
+
+    links = [dict(header="", body = lambda row: approve_but(row)), dict(header="", body= lambda row: reject_but(row))]
     grid = SQLFORM.smartgrid(
             db.WorkWeek,
             linked_tables=['WorkShift'],
@@ -204,7 +206,49 @@ def ViewStudentHours():
             deletable = False,
             details = False,
             onupdate = week_update,
-            editable = dict(WorkWeek = True, WorkShift = False),
-            exportclasses=export_classes
+            editable = dict(WorkWeek = False, WorkShift = False),
+            exportclasses=export_classes,
+            links =dict(WorkWeek=links),
             )
     return dict(hours=grid)
+
+def approve_but(row):
+    week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()
+    ret_aux = ''
+    if week.Approved_Status == 'Approved':
+        ret_aux = 'active'
+
+    return A('Approve',_class='button btn btn-sm btn-success ' + ret_aux, _href=URL(c='users', f='approve', args=[week.id]))
+
+def approve():
+    week_id = request.args[0]
+    week = db(db.WorkWeek.id == week_id).select().first()
+    
+    new_status = 'Approved'
+    if week.Approved_Status == 'Approved':
+        new_status = 'Needs Approval'
+
+    week.update_record(Approved_Status=new_status)
+    
+    return redirect(URL(c='users', f='ViewStudentHours'))    
+
+def reject_but(row):
+    week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()
+    ret_aux = ''
+    if week.Approved_Status == 'Rejected':
+        ret_aux = 'active'
+    
+    return A('Reject',_class='button btn btn-sm btn-danger ' + ret_aux, _href=URL(c='users', f='reject', args=[week.id]))
+
+def reject():
+    week_id = request.args[0]
+    week = db(db.WorkWeek.id == week_id).select().first()
+    
+    new_status = 'Rejected'
+    if week.Approved_Status == 'Rejected':
+        new_status = 'Needs Approval'
+
+    week.update_record(Approved_Status=new_status)
+    
+    return redirect(URL(c='users', f='ViewStudentHours'))    
+

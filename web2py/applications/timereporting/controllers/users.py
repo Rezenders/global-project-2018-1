@@ -55,7 +55,7 @@ def edit_but(row):
     week = db(db.WorkWeek.id == workshift[0].WorkWeek_id).select(db.WorkWeek.Approved_Status)
     ret = ""
     if week[0].Approved_Status != 'Approved':
-        ret = A('Edit',_class='button btn btn-default',_href=URL(f="edit_view_hours", args=[row.WorkShift.id]))
+        ret = A('Edit',_class='button btn btn-sm btn-default',_href=URL(f="edit_view_hours", args=[row.WorkShift.id]))
     return ret
 
 @auth.requires_login()
@@ -186,8 +186,7 @@ def ViewStudentHours():
         db.WorkWeek.Total_Hours,
         db.WorkWeek.Approved_Status,
     ]
-
-
+    
     fields_shift = [
         db.WorkShift.ShiftDay,
         db.WorkShift.WorkedTime,
@@ -206,7 +205,7 @@ def ViewStudentHours():
             deletable = False,
             details = False,
             onupdate = week_update,
-            editable = dict(WorkWeek = False, WorkShift = False),
+            editable = False,
             exportclasses=export_classes,
             links =dict(WorkWeek=links),
             )

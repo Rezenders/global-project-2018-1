@@ -33,7 +33,7 @@ response.menu = [
     ('GitHub', False, 'https://github.com/gus9182/global-project-2018-1'),
 ]
 
-DEVELOPMENT_MENU = True
+DEVELOPMENT_MENU = False
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -95,10 +95,15 @@ def manager_menu():
     try:
         if auth.has_membership(auth.id_group('Managers'), auth.user.id):
             response.menu += [
-                ('Manager', False, '#', [
-                 ('Show Users', False, URL('depaulapp','users', 'show')),
+                ('User Admin', False, '#', [
+                 ('View Users', False, URL('depaulapp', 'users', 'show')),
                  ('Add Students', False, URL('depaulapp', 'users', 'add_student')),
+                 ]),
+                ('TimeReporting', False, '#', [
                  ('View Students Hours', False, URL('depaulapp','timereporting', 'ViewStudentHours')),
+                 ]),
+                ('Workscheduling', False, '#', [
+                 ('View Students Hours', False, URL('depaulapp', 'workscheduling', 'show_hours')),
                  ]),
             ]
     except(AttributeError):
@@ -108,10 +113,14 @@ def student_menu():
     try:
         if auth.has_membership(auth.id_group('Students'), auth.user.id):
             response.menu += [
-                ('Student', False, '#', [
+                ('TimeReporting', False, '#', [
                  ('Add Hours', False, URL('depaulapp', 'timereporting', 'AddHours')),
                  ('View Hours', False, URL('depaulapp', 'timereporting', 'ViewHours')),
                  ]),
+                ('WorkScheduling', False, '#', [
+                 ('Add Hours', False, URL('depaulapp', 'workscheduling', 'timereport')),
+                 ('View Hours', False, URL('depaulapp', 'workscheduling', 'show_hours_student')),
+                ]),
             ]
     except(AttributeError):
         pass

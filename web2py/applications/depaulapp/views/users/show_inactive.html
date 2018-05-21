@@ -1,0 +1,23 @@
+{{extend 'layout.html'}}
+<style>
+.top-buffer { margin-top:1px; }
+.delete-button { position:absolute; right:0}
+</style>
+<link rel="stylesheet" href="{{=URL('static','css/depaul.css')}}"/>
+
+<div><h1 class="depaul">Registered users</h1></div>
+<div class='container'>
+{{=DIV( DIV(B('First Name'), _class='col-md-3 depaul'), DIV(B('Email'), _class='col-md-3 depaul'), DIV(B('Phone Number'), _class='col-md-3 depaul'), _class='row')}}
+<hr>
+{{for user in users:}}
+   {{if user.Active_Status == 'Inactive' and (auth.has_membership(auth.id_group('Students'), user.id)) :}}
+       <div class='row top-buffer'>
+       {{=DIV(user.first_name, _class='col-md-3')}}
+       {{=DIV(user.email, _class='col-md-3')}}
+       {{=DIV(user.Phone_Number, _class='col-md-3')}}
+       {{=DIV(A('Activate',_href='activate_user/'+str(user.id), _class="btn btn-md btn-success"), _class='col-md-3')}}
+   {{pass}}
+    </div>
+   <hr>
+{{pass}}
+</div>

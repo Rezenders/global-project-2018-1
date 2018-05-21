@@ -1,6 +1,6 @@
 @auth.requires_membership('Students')
 def timereport():
-   form = SQLFORM(db.avaliabledh).process()
+   form = SQLFORM(db.AvailableDH).process()
    form.add_button('Check your hours', URL('depaulapp', 'workscheduling', 'show_hours_student'))
    form.add_button('Home', URL('depaulapp', 'default', 'index'))
    if form.accepted:
@@ -11,37 +11,32 @@ def timereport():
 
 @auth.requires_membership('Managers')
 def show_hours():
-   db.avaliabledh.user_id.writable = False
+   db.AvailableDH.student_name.writable = False
    
-   fields_week = [
-       db.avaliabledh.start_time_on_monday,
-       db.avaliabledh.end_time_on_monday,
-       db.avaliabledh.user_id,
-   ]
-
    grid = SQLFORM.smartgrid(
-           db.avaliabledh,
+           db.AvailableDH,
            create = False,
            deletable = False,
            details = False,
+           editable = False,
            )
    return dict(hours=grid)
 
 @auth.requires_membership('Students')
 def show_hours_student():
-   thequery = (db.avaliabledh.user_id == auth.user.id)
-   db.avaliabledh.user_id.writable = False
+   thequery = (db.AvailableDH.student_name == auth.user.id)
+   db.AvailableDH.student_name.writable = False
    grid = SQLFORM.grid(
        query=thequery,
-       fields=[
-           db.avaliabledh.monday,
-           db.avaliabledh.tuesday,
-           db.avaliabledh.wednesday,
-           db.avaliabledh.thursday,
-           db.avaliabledh.friday,
-           db.avaliabledh.end_time_on_friday,
-           db.avaliabledh.total_hours_avaliable,
-       ],
+#       fields=[
+#           db.AvailableDH.monday,
+#           db.AvailableDH.tuesday,
+#           db.AvailableDH.wednesday,
+#           db.AvailableDH.thursday,
+#           db.AvailableDH.friday,
+#           db.AvailableDH.end_time_on_friday,
+#           db.AvailableDH.total_hours_avaliable,
+#       ],
        create=False,
        details=False,
        )

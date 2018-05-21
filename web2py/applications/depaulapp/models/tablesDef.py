@@ -16,8 +16,8 @@ db.define_table(
     Field('Last_Changed', 'datetime', default=request.now)
 )
 db.define_table(
-        'AvaiableDH', 
-        Field('student_name','reference auth_user'), 
+        'AvailableDH', 
+        Field('student_name','reference auth_user', writable=False, default=auth.user_id), 
         Field('Monday', 'date'), 
         Field('StartTimeMonday', 'time'), 
         Field('EndTimeMonday', 'time'), 

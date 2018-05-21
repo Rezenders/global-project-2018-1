@@ -39,6 +39,7 @@ def ViewHours():
             db.WorkShift.ShiftDay,
             db.WorkShift.WorkedTime,
             db.WorkShift.Description,
+            db.WorkShift.Last_Changed,
             db.WorkWeek.Monday,
             db.WorkWeek.Sunday],
         create = False,
@@ -53,7 +54,7 @@ def edit_but(row):
     workshift = db(db.WorkShift.id == row.WorkShift.id).select(db.WorkShift.WorkWeek_id)
     week = db(db.WorkWeek.id == workshift[0].WorkWeek_id).select(db.WorkWeek.Approved_Status)
     ret = ""
-    if week[0].Approved_Status == 'Approved':
+    if week[0].Approved_Status != 'Approved':
         ret = A('Edit',_class='button btn btn-default',_href=URL(f="edit_view_hours", args=[row.WorkShift.id]))        
     return ret
 
@@ -61,7 +62,8 @@ def edit_but(row):
 def edit_view_hours():
     ws_id = request.args[0]
     ws = db(db.WorkShift.id == ws_id).select(db.WorkShift.WorkWeek_id)
-    ws.update(Last_Changed=request.now)
+    tws=db(db.WorkShift.id == ws_id)
+    tws.update(Last_Changed=request.now)
     week = db(db.WorkWeek.id == ws[0].WorkWeek_id).select(db.WorkWeek.user_id)
     if auth.user.id == week[0].user_id:
         db.WorkShift.id.writable = False
@@ -71,6 +73,7 @@ def edit_view_hours():
        
         form = SQLFORM(db.WorkShift, ws_id)
         if form.process().accepted:
+
             redirect(URL(f="ViewHours"))
         return dict(form=form)
     else: 
@@ -181,7 +184,9 @@ def ViewStudentHours():
         db.WorkWeek.Sunday,
         db.WorkWeek.Approved_Status,
         db.WorkWeek.Total_Hours,
+        db.WorkWeek.user_id
     ]
+    
 
     fields_shift = [
         db.WorkShift.ShiftDay,

@@ -156,6 +156,7 @@
 'Logged out': 'Logged out',
 'login': 'Entrar',
 'Login': 'Autentique-se',
+'Login disabled by administrator': 'Login disabled by administrator',
 'logout': 'Sair',
 'Lost Password': 'Esqueceu sua senha?',
 'Lost password?': 'Lost password?',

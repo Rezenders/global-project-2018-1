@@ -64,11 +64,11 @@ def show_all():
 @auth.requires_membership('Upper Managers','Managers')
 def deactivate_user():
    user_id = request.args[0]
-   db.auth_user.update_or_insert(db.auth_user.id == user_id , Active_Status='Inactive')
+   db.auth_user.update_or_insert(db.auth_user.id == user_id , registration_key='disabled')
    return redirect(URL('show_all'))
 
 @auth.requires_membership('Upper Managers','Managers')
 def activate_user():
    user_id = request.args[0]
-   db.auth_user.update_or_insert(db.auth_user.id == user_id , Active_Status='Active')
+   db.auth_user.update_or_insert(db.auth_user.id == user_id , registration_key='')
    return redirect(URL('show_all'))

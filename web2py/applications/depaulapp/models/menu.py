@@ -96,7 +96,7 @@ def manager_menu():
         if auth.has_membership(auth.id_group('Managers'), auth.user.id):
             response.menu += [
                 ('User Admin', False, '#', [
-                 ('View Users', False, URL('depaulapp', 'users', 'show')),
+                 ('View Users', False, URL('depaulapp', 'users', 'show_all')),
                  ('Add Students', False, URL('depaulapp', 'users', 'add_student')),
                  ]),
                 ('TimeReporting', False, '#', [

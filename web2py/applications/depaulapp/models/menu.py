@@ -96,9 +96,9 @@ def manager_menu():
         if auth.has_membership(auth.id_group('Manager'), auth.user.id):
             response.menu += [
                 ('Manager', False, '#', [
-                 ('Show Users', False, URL('timereporting', 'users', 'show')),
-                 ('Add Students', False, URL('timereporting', 'users', 'register')),
-                 ('View Students Hours', False, URL('timereporting','users', 'ViewStudentHours')),
+                 ('Show Users', False, URL('depaulapp','users', 'show')),
+                 ('Add Students', False, URL('depaulapp', 'users', 'register')),
+                 ('View Students Hours', False, URL('depaulapp','users', 'ViewStudentHours')),
                  ]),
             ]
     except(AttributeError):
@@ -109,8 +109,8 @@ def student_menu():
         if auth.has_membership(auth.id_group('students'), auth.user.id):
             response.menu += [
                 ('Student', False, '#', [
-                 ('Add Hours', False, URL('timereporting', 'users', 'AddHours')),
-                 ('View Hours', False, URL('timereporting', 'users', 'ViewHours')),
+                 ('Add Hours', False, URL('depaulapp', 'users', 'AddHours')),
+                 ('View Hours', False, URL('depaulapp', 'users', 'ViewHours')),
                  ]),
             ]
     except(AttributeError):

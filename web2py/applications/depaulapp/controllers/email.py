@@ -25,4 +25,4 @@ def send_hours():
                                 message=message)
     except:
         pass
-    return redirect(URL('timereporting','users',request.args[1]))
+    return redirect(URL(a='depaulapp', c='users',request.args[1]))

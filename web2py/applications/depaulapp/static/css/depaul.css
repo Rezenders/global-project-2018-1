@@ -11,3 +11,40 @@
 .navbar-default .navbar-nav > li > a:hover {color:#ffffff !important;background-color:#1d4267 !important;}
 .menu_ul {background-color:#e4ebf8; color:#1d4267;}
 .dropdown-menu {background-color:#e4ebf8; color:#1d4267;}
+
+div.custom-row
+{
+    width:100%;
+    display: flex;
+    align-items: center;
+    margin-bottom:0.5em;
+    overflow:auto;
+    zoom:1;
+}
+div.custom-row div.editor-cell
+{
+    float:left;
+    width:150px;
+    vertical-align:top;
+    margin-right: 0.5em;
+}
+div.custom-row div.column-title
+{
+    float:left;
+    text-align: center;
+    width:150px;
+    vertical-align:top;
+    margin-right: 0.5em;
+}
+div.custom-row div.row-title
+{
+    float:left;
+    text-align: center;
+    width:80px;
+    margin-right: 0.5em;
+}
+div.editor-cell input
+{
+    height: 100%;
+    width: 100%;
+}

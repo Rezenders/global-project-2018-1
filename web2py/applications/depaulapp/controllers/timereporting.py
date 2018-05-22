@@ -165,10 +165,10 @@ def ViewStudentHours():
         db.WorkShift.WorkedTime,
         db.WorkShift.Description,
     ]
-    export_classes = dict(csv=True, json=False, html=False,
-                          tsv=False, xml=False, csv_with_hidden_cols=False                          ,tsv_with_hidden_cols=False)
+    export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False, 
+                            csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
 
-    links = [dict(header="", body = lambda row: approve_but(row)), dict(header="", body= lambda row: reject_but(row))]
+    links = [dict(header="", body = lambda row: add_comments(row)),dict(header="", body = lambda row: approve_but(row)), dict(header="", body= lambda row: reject_but(row))]
     grid = SQLFORM.smartgrid(
             db.WorkWeek,
             linked_tables=['WorkShift'],
@@ -178,10 +178,13 @@ def ViewStudentHours():
             details = False,
             onupdate = week_update,
             editable = False,
-            exportclasses=export_classes,
+            exportclasses=dict(WorkWeek=export_classes),
             links =dict(WorkWeek=links),
             )
     return dict(hours=grid)
+
+def add_comments(row):
+    return A('Add Comments',_class='btn btn-info btn-sm')
 
 def approve_but(row):
     week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()

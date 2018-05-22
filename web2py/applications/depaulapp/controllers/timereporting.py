@@ -1,3 +1,5 @@
+from datetime import date, datetime, timedelta
+
 @auth.requires_membership('Students')
 def ViewHours():
     thequery = (db.WorkWeek.user_id == auth.user.id) & (
@@ -54,7 +56,26 @@ def edit_view_hours():
 
 @auth.requires_membership('Students')
 def AddHours():
-    var = SQLFORM.factory(db.WorkWeek.Monday,
+    DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    first_day = request.vars.startdate or date.today() - timedelta(days=date.today().weekday())
+    if isinstance(first_day, basestring):
+        first_day = datetime.strptime(first_day, '%Y-%m-%d').date()
+
+    # Check to make sure start date is a monday
+    if first_day.weekday() != 0:
+        first_day = date.today() - timedelta(days=date.today().weekday())
+    week_start_str = 'Week of %s' % first_day.strftime('%m/%d')
+    previous_week = first_day - timedelta(days=7)
+    next_week = first_day + timedelta(days=7)
+
+    labels = {}
+    for idx, day in enumerate(DAYS_OF_WEEK):
+        day_idx = day + '_Hours'
+        date_string = (first_day + timedelta(days=idx)).strftime('%m/%d')
+        labels[day_idx] = '%s - %s' % (day[:3], date_string)
+
+    form = SQLFORM.factory(
                           Field('Monday_Hours', 'double', default=0),
                           Field('Monday_Description', 'string'),
                           Field('Tuesday_Hours', 'double', default=0),
@@ -69,77 +90,99 @@ def AddHours():
                           Field('Saturday_Description', 'string'),
                           Field('Sunday_Hours', 'double', default=0),
                           Field('Sunday_Description', 'string'),
-                          )
-    md = 'Saturday'
-    if var.process().accepted:
-        import datetime
-        # db.WorkWeek.Sunday,
-        # timedelta(days=5)
-        # .weekday()
-        # md=var.vars.Monday+datetime.timedelta(days=5);
-        md = var.vars.Monday.weekday()
-        if md != 0:
-            response.flash = 'Invalid day'
+                          labels=labels, formstyle=''
+    )
+
+    previous_week_button = INPUT(_type='button', _value='Previous Week', _onclick='window.location=\'%s\';;return false' % URL('AddHours', vars={'startdate': previous_week}))
+    next_week_button = INPUT(_type='button', _value='Next Week', _onclick='window.location=\'%s\';;return false' % URL('AddHours', vars={'startdate': next_week}))
+
+    Day1 = first_day
+    Day2 = first_day + timedelta(days=1)
+    Day3 = first_day + timedelta(days=2)
+    Day4 = first_day + timedelta(days=3)
+    Day5 = first_day + timedelta(days=4)
+    Day6 = first_day + timedelta(days=5)
+    Day7 = first_day + timedelta(days=6)
+
+    DAYS = [Day1, Day2, Day3, Day4, Day5, Day6, Day7]
+
+    for idx, day in enumerate(DAYS_OF_WEEK):
+        current_shift = db.WorkShift(db.WorkShift.ShiftDay == DAYS[idx])
+        if current_shift:
+            hours = current_shift.WorkedTime
+            comment = current_shift.Description
+
+            setattr(form.vars, day + '_Hours', int(hours) if hours.is_integer() else hours)
+            setattr(form.vars, day + '_Description', comment)
+
+    if form.process().accepted:
+        total_hours = 0
+        for day in DAYS_OF_WEEK:
+            total_hours += float(getattr(form.vars, day + '_Hours'))
+
+        week = db.WorkWeek.update_or_insert(
+            db.WorkWeek.Monday == Day1,
+            Monday=Day1,
+            Sunday=Day7,
+            user_id=auth.user.id,
+            Total_Hours=total_hours)
+        if week:
+            weekid = week.id
         else:
-            Day1 = var.vars.Monday
-            Day2 = var.vars.Monday + datetime.timedelta(days=1)
-            Day3 = var.vars.Monday + datetime.timedelta(days=2)
-            Day4 = var.vars.Monday + datetime.timedelta(days=3)
-            Day5 = var.vars.Monday + datetime.timedelta(days=4)
-            Day6 = var.vars.Monday + datetime.timedelta(days=5)
-            Day7 = var.vars.Monday + datetime.timedelta(days=6)
-            TotalHours = var.vars.Monday_Hours + var.vars.Tuesday_Hours + var.vars.Wednesday_Hours + \
-                var.vars.Thursday_Hours + var.vars.Friday_Hours + var.vars.Saturday_Hours + var.vars.Sunday_Hours
-            new_var = db.WorkWeek.insert(
-                Monday=Day1,
-                Sunday=Day7,
-                user_id=auth.user.id,
-                Total_Hours=TotalHours)
-            weekid = new_var.id
-            db.WorkShift.insert(
-                ShiftDay=Day1,
-                WorkedTime=var.vars.Monday_Hours,
-                Description=var.vars.Monday_Description,
-                WorkWeek_id=weekid)
-            db.WorkShift.insert(
-                ShiftDay=Day2,
-                WorkedTime=var.vars.Tuesday_Hours,
-                Description=var.vars.Tuesday_Description,
-                WorkWeek_id=weekid)
-            db.WorkShift.insert(
-                ShiftDay=Day3,
-                WorkedTime=var.vars.Wednesday_Hours,
-                Description=var.vars.Wednesday_Description,
-                WorkWeek_id=weekid)
-            db.WorkShift.insert(
-                ShiftDay=Day4,
-                WorkedTime=var.vars.Thursday_Hours,
-                Description=var.vars.Thursday_Description,
-                WorkWeek_id=weekid)
-            db.WorkShift.insert(
-                ShiftDay=Day5,
-                WorkedTime=var.vars.Friday_Hours,
-                Description=var.vars.Friday_Description,
-                WorkWeek_id=weekid)
-            db.WorkShift.insert(
-                ShiftDay=Day6,
-                WorkedTime=var.vars.Saturday_Hours,
-                Description=var.vars.Saturday_Description,
-                WorkWeek_id=weekid)
-            db.WorkShift.insert(
-                ShiftDay=Day7,
-                WorkedTime=var.vars.Sunday_Hours,
-                Description=var.vars.Sunday_Description,
-                WorkWeek_id=weekid)
+            weekid = db.WorkWeek(db.WorkWeek.Monday == Day1).id
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day1,
+            ShiftDay=Day1,
+            WorkedTime=form.vars.Monday_Hours,
+            Description=form.vars.Monday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day2,
+            ShiftDay=Day2,
+            WorkedTime=form.vars.Tuesday_Hours,
+            Description=form.vars.Tuesday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day3,
+            ShiftDay=Day3,
+            WorkedTime=form.vars.Wednesday_Hours,
+            Description=form.vars.Wednesday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day4,
+            ShiftDay=Day4,
+            WorkedTime=form.vars.Thursday_Hours,
+            Description=form.vars.Thursday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day5,
+            ShiftDay=Day5,
+            WorkedTime=form.vars.Friday_Hours,
+            Description=form.vars.Friday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day6,
+            ShiftDay=Day6,
+            WorkedTime=form.vars.Saturday_Hours,
+            Description=form.vars.Saturday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
+        db.WorkShift.update_or_insert(
+            db.WorkShift.ShiftDay == Day7,
+            ShiftDay=Day7,
+            WorkedTime=form.vars.Sunday_Hours,
+            Description=form.vars.Sunday_Description,
+            WorkWeek_id=weekid,
+            Last_Changed=datetime.now())
 
-            response.flash = 'Thanks for filling the form'
-        #year, month, day = (int(x) for x in md.split('-'))
-        #answer = datetime.date(year, month, day).weekday()
-    # id = db.client.insert(**db.client._filter_fields(form.vars))
-    # var.vars.client=id
-    #id = db.address.insert(**db.address._filter_fields(form.vars))
+        redirect(URL(c="timereporting",f="ViewHours"))
 
-    return dict(a=var, b=md)
+    return dict(form=form, week_start=week_start_str, next_week=next_week_button, previous_week=previous_week_button)
 
 @auth.requires_membership('Managers')
 def ViewStudentHours():

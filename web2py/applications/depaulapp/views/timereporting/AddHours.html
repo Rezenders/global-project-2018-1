@@ -1,3 +1,85 @@
 {{extend 'layout.html'}}
-{{=H1(T('Fill the form to add hours!'))}}
-{{=BEAUTIFY(response._vars)}}
+{{=H1(T(response._vars['week_start']))}}
+{{=form.custom.begin}}
+    <div class="custom-row">
+        <div class="row-title">
+            &nbsp;
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Monday_Hours}}
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Tuesday_Hours}}
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Wednesday_Hours}}
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Thursday_Hours}}
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Friday_Hours}}
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Saturday_Hours}}
+        </div>
+        <div class="column-title">
+            {{=form.custom.label.Sunday_Hours}}
+        </div>
+    </div>
+    <div class="custom-row">
+        <div class="row-title">
+            <h5>{{=T("Hours")}}</h5>
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Monday_Hours}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Tuesday_Hours}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Wednesday_Hours}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Thursday_Hours}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Friday_Hours}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Saturday_Hours}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Sunday_Hours}}
+        </div>
+    </div>
+    <div class="custom-row">
+        <div class="row-title">
+            <h5>{{=T("Comments")}}</h5>
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Monday_Description}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Tuesday_Description}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Wednesday_Description}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Thursday_Description}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Friday_Description}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Saturday_Description}}
+        </div>
+        <div class="editor-cell">
+            {{=form.custom.widget.Sunday_Description}}
+        </div>
+        </div>
+    {{=form.custom.submit}}
+    {{=previous_week}}
+    {{=next_week}}
+{{=form.custom.end}}

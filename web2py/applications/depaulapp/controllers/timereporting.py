@@ -227,7 +227,7 @@ def ViewStudentHours():
     return dict(hours=grid)
 
 def add_comments(row):
-    return A('Add Comments',_class='btn btn-info btn-sm')
+    return A('Add Comments',_class='btn btn-info btn-sm', _href="#comment-modal", data={'toggle':'modal'})
 
 def approve_but(row):
     week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()

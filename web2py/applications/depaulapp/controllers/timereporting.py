@@ -90,21 +90,13 @@ def AddHours():
                           Field('Saturday_Description', 'string'),
                           Field('Sunday_Hours', 'double', default=0),
                           Field('Sunday_Description', 'string'),
-                          labels=labels, formstyle=''
+                          labels=labels
     )
 
     previous_week_button = INPUT(_type='button', _value='Previous Week', _onclick='window.location=\'%s\';;return false' % URL('AddHours', vars={'startdate': previous_week}))
     next_week_button = INPUT(_type='button', _value='Next Week', _onclick='window.location=\'%s\';;return false' % URL('AddHours', vars={'startdate': next_week}))
 
-    Day1 = first_day
-    Day2 = first_day + timedelta(days=1)
-    Day3 = first_day + timedelta(days=2)
-    Day4 = first_day + timedelta(days=3)
-    Day5 = first_day + timedelta(days=4)
-    Day6 = first_day + timedelta(days=5)
-    Day7 = first_day + timedelta(days=6)
-
-    DAYS = [Day1, Day2, Day3, Day4, Day5, Day6, Day7]
+    DAYS = [first_day + timedelta(days=n) for n in range(7)]
 
     for idx, day in enumerate(DAYS_OF_WEEK):
         current_shift = db.WorkShift(db.WorkShift.ShiftDay == DAYS[idx])
@@ -116,69 +108,53 @@ def AddHours():
             setattr(form.vars, day + '_Description', comment)
 
     if form.process().accepted:
+
         total_hours = 0
         for day in DAYS_OF_WEEK:
-            total_hours += float(getattr(form.vars, day + '_Hours'))
+            try:
+                total_hours += float(getattr(form.vars, day + '_Hours'))
+            except Exception:
+                # Field was blank, no hours to add
+                pass
 
         week = db.WorkWeek.update_or_insert(
-            db.WorkWeek.Monday == Day1,
-            Monday=Day1,
-            Sunday=Day7,
+            db.WorkWeek.Monday == DAYS[0],
+            Monday=DAYS[0],
+            Sunday=DAYS[6],
             user_id=auth.user.id,
             Total_Hours=total_hours)
         if week:
             weekid = week.id
         else:
-            weekid = db.WorkWeek(db.WorkWeek.Monday == Day1).id
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day1,
-            ShiftDay=Day1,
-            WorkedTime=form.vars.Monday_Hours,
-            Description=form.vars.Monday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day2,
-            ShiftDay=Day2,
-            WorkedTime=form.vars.Tuesday_Hours,
-            Description=form.vars.Tuesday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day3,
-            ShiftDay=Day3,
-            WorkedTime=form.vars.Wednesday_Hours,
-            Description=form.vars.Wednesday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day4,
-            ShiftDay=Day4,
-            WorkedTime=form.vars.Thursday_Hours,
-            Description=form.vars.Thursday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day5,
-            ShiftDay=Day5,
-            WorkedTime=form.vars.Friday_Hours,
-            Description=form.vars.Friday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day6,
-            ShiftDay=Day6,
-            WorkedTime=form.vars.Saturday_Hours,
-            Description=form.vars.Saturday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
-        db.WorkShift.update_or_insert(
-            db.WorkShift.ShiftDay == Day7,
-            ShiftDay=Day7,
-            WorkedTime=form.vars.Sunday_Hours,
-            Description=form.vars.Sunday_Description,
-            WorkWeek_id=weekid,
-            Last_Changed=datetime.now())
+            weekid = db.WorkWeek(db.WorkWeek.Monday == DAYS[0]).id
+
+        for idx, day in enumerate(DAYS_OF_WEEK):
+            curr_date = DAYS[idx]
+            try:
+                hours = float(getattr(form.vars, day + '_Hours'))
+            except Exception:
+                hours = 0
+            comment = getattr(form.vars, day + '_Description')
+
+            old_row = db.WorkShift(db.WorkShift.ShiftDay == curr_date)
+
+            if old_row:
+                old_hours = old_row.WorkedTime
+                old_comment = old_row.Description
+
+                if old_hours != hours or old_comment != comment:
+                    old_row.update_record(
+                        WorkedTime=hours,
+                        Description=comment,
+                        Last_Changed=datetime.now())
+
+            else:
+                db.WorkShift.insert(
+                    ShiftDay=curr_date,
+                    WorkedTime=hours,
+                    Description=comment,
+                    WorkWeek_id=weekid,
+                    Last_Changed=datetime.now())
 
         redirect(URL(c="timereporting",f="ViewHours"))
 

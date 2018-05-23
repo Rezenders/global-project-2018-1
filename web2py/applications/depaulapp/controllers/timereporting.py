@@ -112,51 +112,59 @@ def AddHours():
         total_hours = 0
         for day in DAYS_OF_WEEK:
             try:
-                total_hours += float(getattr(form.vars, day + '_Hours'))
+                hours = float(getattr(form.vars, day + '_Hours'))
+                total_hours += hours if hours > 0 else 0
             except Exception:
                 # Field was blank, no hours to add
                 pass
 
-        week = db.WorkWeek.update_or_insert(
-            db.WorkWeek.Monday == DAYS[0],
-            Monday=DAYS[0],
-            Sunday=DAYS[6],
-            user_id=auth.user.id,
-            Total_Hours=total_hours)
-        if week:
-            weekid = week.id
-        else:
-            weekid = db.WorkWeek(db.WorkWeek.Monday == DAYS[0]).id
+        existing_week = db.WorkShift(db.WorkShift.ShiftDay == DAYS[0])
+        if total_hours > 0 or existing_week is not None:
+            week = db.WorkWeek.update_or_insert(
+                db.WorkWeek.Monday == DAYS[0],
+                Monday=DAYS[0],
+                Sunday=DAYS[6],
+                user_id=auth.user.id,
+                Total_Hours=total_hours)
+            if week:
+                weekid = week.id
+            else:
+                weekid = db.WorkWeek(db.WorkWeek.Monday == DAYS[0]).id
 
-        for idx, day in enumerate(DAYS_OF_WEEK):
-            curr_date = DAYS[idx]
-            try:
-                hours = float(getattr(form.vars, day + '_Hours'))
-            except Exception:
-                hours = 0
-            comment = getattr(form.vars, day + '_Description')
+            for idx, day in enumerate(DAYS_OF_WEEK):
+                curr_date = DAYS[idx]
+                try:
+                    hours = float(getattr(form.vars, day + '_Hours'))
+                    if hours < 0:
+                        hours = 0
+                except Exception:
+                    hours = 0
+                comment = getattr(form.vars, day + '_Description')
 
-            old_row = db.WorkShift(db.WorkShift.ShiftDay == curr_date)
+                old_row = db.WorkShift(db.WorkShift.ShiftDay == curr_date)
 
-            if old_row:
-                old_hours = old_row.WorkedTime
-                old_comment = old_row.Description
+                if old_row:
+                    old_hours = old_row.WorkedTime
+                    old_comment = old_row.Description
 
-                if old_hours != hours or old_comment != comment:
-                    old_row.update_record(
+                    if old_hours != hours or old_comment != comment:
+                        old_row.update_record(
+                            WorkedTime=hours,
+                            Description=comment,
+                            Last_Changed=datetime.now())
+
+                else:
+                    db.WorkShift.insert(
+                        ShiftDay=curr_date,
                         WorkedTime=hours,
                         Description=comment,
+                        WorkWeek_id=weekid,
                         Last_Changed=datetime.now())
 
-            else:
-                db.WorkShift.insert(
-                    ShiftDay=curr_date,
-                    WorkedTime=hours,
-                    Description=comment,
-                    WorkWeek_id=weekid,
-                    Last_Changed=datetime.now())
-
-        redirect(URL(c="timereporting",f="ViewHours"))
+            redirect(URL(c="timereporting",f="ViewHours"))
+        
+        else:
+            response.flash = T('No Hours Entered!')
 
     return dict(form=form, week_start=week_start_str, next_week=next_week_button, previous_week=previous_week_button)
 

@@ -168,7 +168,7 @@ def AddHours():
 
     return dict(form=form, week_start=week_start_str, next_week=next_week_button, previous_week=previous_week_button)
 
-@auth.requires_membership('Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def ViewStudentHours():
     def week_update(form):
         week_id = form.vars.id
@@ -214,7 +214,7 @@ def ViewStudentHours():
 def comments_but(row):
     return BUTTON('Add Comments',_class='btn btn-info btn-sm', _onclick="show_modal("+str(row.id)+")")
 
-#@auth.requires_membership('Managers','Upper Managers')
+#@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def add_comments():
     week_id = request.post_vars.week_id
     text = request.post_vars.text

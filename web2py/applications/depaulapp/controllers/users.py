@@ -1,6 +1,6 @@
 from users import _add_to_students
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def add_student():
     form = SQLFORM(db.auth_user)
     if form.validate():
@@ -33,12 +33,12 @@ def add_uppermanager():
 
     return dict(form=form)
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def manage_level():
    grid = SQLFORM.smartgrid(db.auth_membership)
    return locals()
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def manage_users():
    grid = SQLFORM.smartgrid(db.auth_user)
    #db.auth_user.show_if = (db.auth_membership.group_id=='Student')
@@ -46,28 +46,28 @@ def manage_users():
    #return dict(form = form)
    return locals()
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def show_inactive():
    users = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
    return dict(users=users)
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def show_active():
    users = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
    return dict(users=users)
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def show_all():
    users = db().select(db.auth_user.ALL, orderby=db.auth_user.first_name)
    return dict(users=users)
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def deactivate_user():
    user_id = request.args[0]
    db.auth_user.update_or_insert(db.auth_user.id == user_id , registration_key='disabled')
    return redirect(URL('show_all'))
 
-@auth.requires_membership('Upper Managers','Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def activate_user():
    user_id = request.args[0]
    db.auth_user.update_or_insert(db.auth_user.id == user_id , registration_key='')

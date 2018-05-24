@@ -170,10 +170,6 @@ def AddHours():
 
 @auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def ViewStudentHours():
-    def week_update(form):
-        week_id = form.vars.id
-        return redirect(URL(c='email',f='send_hours', args=[ str(week_id), 'ViewStudentHours']))
-
     db.WorkWeek.Monday.writable = False
     db.WorkWeek.Sunday.writable = False
     db.WorkWeek.user_id.writable = False
@@ -193,10 +189,15 @@ def ViewStudentHours():
         db.WorkShift.WorkedTime,
         db.WorkShift.Description,
     ]
-    export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False, 
-                            csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
+    export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False,csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
 
-    links = [dict(header="", body = lambda row: comments_but(row)),dict(header="", body = lambda row: approve_but(row)), dict(header="", body= lambda row: reject_but(row))]
+    links = [
+            dict(header="", body = lambda row: email_but(row)),
+            dict(header="", body = lambda row: comments_but(row)),
+            dict(header="", body = lambda row: approve_but(row)), 
+            dict(header="", body= lambda row: reject_but(row)),
+            ]
+
     grid = SQLFORM.smartgrid(
             db.WorkWeek,
             linked_tables=['WorkShift'],
@@ -204,12 +205,14 @@ def ViewStudentHours():
             create = False,
             deletable = False,
             details = False,
-            onupdate = week_update,
             editable = False,
             exportclasses=dict(WorkWeek=export_classes),
             links =dict(WorkWeek=links),
             )
     return dict(hours=grid)
+
+def email_but(row):
+    return BUTTON('Email',_class='button btn btn-sm btn-info', _onclick="jQuery.ajax('"+URL('email','send_hours', args=[row.id])+"');")
 
 def comments_but(row):
     return BUTTON('Add Comments',_class='btn btn-info btn-sm', _onclick="show_modal("+str(row.id)+")")

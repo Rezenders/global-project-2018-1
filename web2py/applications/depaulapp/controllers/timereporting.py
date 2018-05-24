@@ -196,6 +196,13 @@ def StudentHours():
     export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False,csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
 
     links = [
+            dict(header="Mo", body = lambda row: monday_hour(row)),
+            dict(header="Tu", body = lambda row: tuesday_hour(row)),
+            dict(header="We", body = lambda row: wednesday_hour(row)),
+            dict(header="Th", body = lambda row: thursday_hour(row)),
+            dict(header="Fr", body = lambda row: friday_hour(row)),
+            dict(header="Sa", body = lambda row: saturday_hour(row)),
+            dict(header="Su", body = lambda row: sunday_hour(row)),
             dict(header="Send Email", body = lambda row: email_but(row)),
             dict(header="Add Comments", body = lambda row: comments_but(row)),
             dict(header="", body = lambda row: approve_but(row)), 
@@ -269,4 +276,68 @@ def reject():
     week.update_record(Approved_Status=new_status)
 
     return 'web2py_component("%s","hourform");' % URL(c='timereporting', f='StudentHours.load')
+
+def monday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 0:
+            time = w.WorkedTime
+            break
+    return time
+
+def tuesday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 1:
+            time = w.WorkedTime
+            break
+    return time
+
+def wednesday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 2:
+            time = w.WorkedTime
+            break
+    return time
+
+def thursday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 3:
+            time = w.WorkedTime
+            break
+    return time
+
+def friday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 4:
+            time = w.WorkedTime
+            break
+    return time
+
+def saturday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 5:
+            time = w.WorkedTime
+            break
+    return time
+
+def sunday_hour(row):
+    ws = db(db.WorkShift.WorkWeek_id == row.id).select(orderby=db.WorkShift.ShiftDay)
+    time = 0
+    for w in ws:
+        if w.ShiftDay.weekday() == 6:
+            time = w.WorkedTime
+            break
+    return time
+
 

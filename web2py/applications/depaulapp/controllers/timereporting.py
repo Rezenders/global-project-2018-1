@@ -237,7 +237,7 @@ def approve_but(row):
     if week.Approved_Status == 'Approved':
         ret_aux = 'active'
 
-    return A('Approve',_name=week.id,_class='button btn btn-sm btn-success ' + ret_aux, _href=URL(c='timereporting', f='approve', args=[week.id]))
+    return BUTTON('Approve',_name=week.id,_class='button btn btn-sm btn-success ' + ret_aux, _onclick="ajax('%s',[],':eval')" % URL(c='timereporting', f='approve', args=[week.id]))
 
 def approve():
     week_id = request.args[0]
@@ -249,7 +249,7 @@ def approve():
 
     week.update_record(Approved_Status=new_status)
 
-    return redirect(URL(c='timereporting', f='ViewStudentHours'))
+    return 'web2py_component("%s","hourform");' % URL(c='timereporting', f='StudentHours.load')
 
 def reject_but(row):
     week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()
@@ -257,7 +257,7 @@ def reject_but(row):
     if week.Approved_Status == 'Rejected':
         ret_aux = 'active'
 
-    return A('Reject',_class='button btn btn-sm btn-danger ' + ret_aux, _href=URL(c='timereporting', f='reject', args=[week.id]))
+    return BUTTON('Reject',_class='button btn btn-sm btn-danger ' + ret_aux, _onclick="ajax('%s',[],':eval')"%URL(c='timereporting', f='reject', args=[week.id]))
 
 def reject():
     week_id = request.args[0]
@@ -269,5 +269,5 @@ def reject():
 
     week.update_record(Approved_Status=new_status)
 
-    return redirect(URL(c='timereporting', f='ViewStudentHours'))
+    return 'web2py_component("%s","hourform");' % URL(c='timereporting', f='StudentHours.load')
 

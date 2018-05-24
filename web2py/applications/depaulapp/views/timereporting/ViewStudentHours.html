@@ -1,4 +1,23 @@
 {{extend 'layout.html'}}
+<script>
+var week_id = null;
+
+function show_modal(id){
+	$('#comment-modal').modal('show');
+	week_id = id;
+};
+
+function add_comments_request(text){
+	var link = window.location.protocol +"{{=URL('timereporting','add_comments')}}";
+	var params = JSON.stringify({ text: text, week_id: week_id});
+	
+	var xhttp = new XMLHttpRequest();
+	xhttp.open("POST", link ,true);
+	xhttp.setRequestHeader("Content-type", "application/json; charset=utf-8");
+	
+	xhttp.send(params)
+};
+</script>
 
 <!-- Modal -->
 <div id="comment-modal" class="modal fade" role="dialog">
@@ -11,15 +30,22 @@
         <h4 class="modal-title">Add comment</h4>
       </div>
       <div class="modal-body">
-        <p>Some text in the modal.</p>
+	<form>
+		<div class="form-group">
+		<label for="comment">Comment:</label>
+		<textarea class="form-control" rows="5" id="comment"></textarea>
+		</div>
+      	</form>
       </div>
       <div class="modal-footer">
+        <input type='button' class="btn btn-default"  value= 'Submit' onclick="add_comments_request($('#comment')['0'].value)" data-dismiss="modal"></input>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
 
   </div>
 </div>
+
 
 {{=H1(T('Student Hours'))}}
 {{=BEAUTIFY(hours)}}

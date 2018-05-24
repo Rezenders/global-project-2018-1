@@ -196,8 +196,8 @@ def StudentHours():
     export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False,csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
 
     links = [
-            dict(header="", body = lambda row: email_but(row)),
-            dict(header="", body = lambda row: comments_but(row)),
+            dict(header="Send Email", body = lambda row: email_but(row)),
+            dict(header="Add Comments", body = lambda row: comments_but(row)),
             dict(header="", body = lambda row: approve_but(row)), 
             dict(header="", body= lambda row: reject_but(row)),
             ]
@@ -216,10 +216,10 @@ def StudentHours():
     return dict(hours=grid)
 
 def email_but(row):
-    return BUTTON('Email',_class='button btn btn-sm btn-info', _onclick="jQuery.ajax('"+URL('email','send_hours', args=[row.id])+"');")
+    return BUTTON(IMG(_src=URL('static','images/email.png')),_onclick="jQuery.ajax('"+URL('email','send_hours', args=[row.id])+"');",_class='logos')
 
 def comments_but(row):
-    return BUTTON('Add Comments',_class='btn btn-info btn-sm', _onclick="show_modal("+str(row.id)+")")
+    return BUTTON(IMG(_src=URL('static','images/comment.png')), _onclick="show_modal("+str(row.id)+")",_class='logos')
 
 #@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def add_comments():

@@ -93,7 +93,7 @@ def _():
 
 def manager_menu():
     try:
-        if auth.has_membership(auth.id_group('Managers'), auth.user.id):
+        if auth.has_membership(auth.id_group('Managers'), auth.user.id) or auth.has_membership(auth.id_group('Upper Managers'), auth.user.id)  :
             response.menu += [
                 ('User Admin', False, '#', [
                  ('View Users', False, URL('depaulapp', 'users', 'show_all')),

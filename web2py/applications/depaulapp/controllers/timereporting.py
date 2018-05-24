@@ -181,7 +181,6 @@ def ViewStudentHours():
         db.WorkWeek.Sunday,
         db.WorkWeek.Total_Hours,
         db.WorkWeek.Approved_Status,
-        db.WorkWeek.Manager_Comment,
     ]
 
     fields_shift = [

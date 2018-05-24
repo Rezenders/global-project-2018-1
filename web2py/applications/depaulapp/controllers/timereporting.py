@@ -185,6 +185,7 @@ def ViewStudentHours():
         db.WorkWeek.Sunday,
         db.WorkWeek.Total_Hours,
         db.WorkWeek.Approved_Status,
+        db.WorkWeek.Manager_Comment,
     ]
 
     fields_shift = [
@@ -195,7 +196,7 @@ def ViewStudentHours():
     export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False, 
                             csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
 
-    links = [dict(header="", body = lambda row: add_comments(row)),dict(header="", body = lambda row: approve_but(row)), dict(header="", body= lambda row: reject_but(row))]
+    links = [dict(header="", body = lambda row: comments_but(row)),dict(header="", body = lambda row: approve_but(row)), dict(header="", body= lambda row: reject_but(row))]
     grid = SQLFORM.smartgrid(
             db.WorkWeek,
             linked_tables=['WorkShift'],
@@ -210,8 +211,17 @@ def ViewStudentHours():
             )
     return dict(hours=grid)
 
-def add_comments(row):
-    return A('Add Comments',_class='btn btn-info btn-sm', _href="#comment-modal", data={'toggle':'modal'})
+def comments_but(row):
+    return BUTTON('Add Comments',_class='btn btn-info btn-sm', _onclick="show_modal("+str(row.id)+")")
+
+#@auth.requires_membership('Managers','Upper Managers')
+def add_comments():
+    week_id = request.post_vars.week_id
+    text = request.post_vars.text
+    week = db(db.WorkWeek.id == long(week_id)).select().first()
+    week.update_record(Manager_Comment=text)
+    
+    return HTTP('200','Comments added!')
 
 def approve_but(row):
     week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()
@@ -219,7 +229,7 @@ def approve_but(row):
     if week.Approved_Status == 'Approved':
         ret_aux = 'active'
 
-    return A('Approve',_class='button btn btn-sm btn-success ' + ret_aux, _href=URL(c='timereporting', f='approve', args=[week.id]))
+    return A('Approve',_name=week.id,_class='button btn btn-sm btn-success ' + ret_aux, _href=URL(c='timereporting', f='approve', args=[week.id]))
 
 def approve():
     week_id = request.args[0]

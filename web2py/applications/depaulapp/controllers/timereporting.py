@@ -170,6 +170,10 @@ def AddHours():
 
 @auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def ViewStudentHours():
+    return dict()
+
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
+def StudentHours():
     db.WorkWeek.Monday.writable = False
     db.WorkWeek.Sunday.writable = False
     db.WorkWeek.user_id.writable = False
@@ -209,6 +213,8 @@ def ViewStudentHours():
             links =dict(WorkWeek=links),
             )
     return dict(hours=grid)
+
+
 
 def email_but(row):
     return BUTTON('Email',_class='button btn btn-sm btn-info', _onclick="jQuery.ajax('"+URL('email','send_hours', args=[row.id])+"');")

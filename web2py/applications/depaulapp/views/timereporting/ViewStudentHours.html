@@ -4,19 +4,14 @@ var week_id = null;
 
 function show_modal(id){
 	$('#comment-modal').modal('show');
-	week_id = id;
+	week_id = id.toString();
 };
 
-function add_comments_request(text){
-	var link = window.location.protocol +"{{=URL('timereporting','add_comments')}}";
-	var params = JSON.stringify({ text: text, week_id: week_id});
-	
-	var xhttp = new XMLHttpRequest();
-	xhttp.open("POST", link ,true);
-	xhttp.setRequestHeader("Content-type", "application/json; charset=utf-8");
-	
-	xhttp.send(params)
-};
+function add_comments_request(){
+	var link = '{{=URL('timereporting', 'add_comments')}}/' + week_id + '/' + $('#comment')['0'].value + '/'  
+	ajax(link, [], ':eval')
+}
+
 </script>
 
 <!-- Modal -->
@@ -38,7 +33,7 @@ function add_comments_request(text){
       	</form>
       </div>
       <div class="modal-footer">
-        <input type='button' class="btn btn-default"  value= 'Submit' onclick="add_comments_request($('#comment')['0'].value)" data-dismiss="modal"></input>
+	      <input type='button' class="btn btn-default"  value= 'Submit' onclick="add_comments_request()", [], ':eval')" data-dismiss="modal"></input>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>

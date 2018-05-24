@@ -185,6 +185,7 @@ def StudentHours():
         db.WorkWeek.Sunday,
         db.WorkWeek.Total_Hours,
         db.WorkWeek.Approved_Status,
+        db.WorkWeek.Manager_Comment,
     ]
 
     fields_shift = [
@@ -214,8 +215,6 @@ def StudentHours():
             )
     return dict(hours=grid)
 
-
-
 def email_but(row):
     return BUTTON('Email',_class='button btn btn-sm btn-info', _onclick="jQuery.ajax('"+URL('email','send_hours', args=[row.id])+"');")
 
@@ -224,12 +223,12 @@ def comments_but(row):
 
 #@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def add_comments():
-    week_id = request.post_vars.week_id
-    text = request.post_vars.text
+    week_id = long(request.args[0])
+    text = request.args[1].replace("_", " ")
     week = db(db.WorkWeek.id == long(week_id)).select().first()
     week.update_record(Manager_Comment=text)
     
-    return HTTP('200','Comments added!')
+    return 'web2py_component("%s","hourform");' % URL(c='timereporting', f='StudentHours.load')
 
 def approve_but(row):
     week = db(db.WorkWeek.id == row.id).select(db.WorkWeek.ALL).first()

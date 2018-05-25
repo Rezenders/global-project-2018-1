@@ -5,7 +5,7 @@
 # Customize your APP title, subtitle and menus here
 # ----------------------------------------------------------------------------------------------------------------------
 
-response.logo = A(B('DePaul-', SPAN('iD'), 'Lab'), XML('&trade;&nbsp;'),
+response.logo = A(IMG(_style="height:33px",_src=URL('static','images/dpu-logo-herewedo.png')),
                   _class="navbar-brand", _href="https://depaulidlab.com/",
                   _id="depaul_logo")
 response.title = request.application.replace('_', ' ').title()

@@ -1,4 +1,4 @@
-@auth.requires_membership('Managers')
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def send_hours():
     WorkWeek_id = request.args[0]
     WeekWorked = db(db.WorkWeek.id == WorkWeek_id).select(db.WorkWeek.ALL)

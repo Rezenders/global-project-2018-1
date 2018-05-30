@@ -2,45 +2,91 @@ from datetime import date, datetime, timedelta
 
 @auth.requires_membership('Students')
 def ViewHours():
-    thequery = (db.WorkWeek.user_id == auth.user.id) & (
-        db.WorkShift.WorkWeek_id == db.WorkWeek.id)
-    links = [dict(header="", body = lambda row: edit_but(row))]
-    export_classes = dict(csv=True, json=False, html=False,
-                          tsv=False, xml=False, csv_with_hidden_cols=False,
-                          tsv_with_hidden_cols=False)
-    grid = SQLFORM.grid(
-        query=thequery,
-        fields=[
-            db.WorkShift.ShiftDay,
-            db.WorkShift.WorkedTime,
-            db.WorkShift.Description,
-            db.WorkShift.Last_Changed,
-            db.WorkWeek.Monday,
-            db.WorkWeek.Sunday],
-        create = False,
-        details = False,
-        editable = False,
-        links = links,
-        exportclasses=export_classes
-        )
-    return dict(grid=grid)
+    db.WorkWeek.Monday.writable = False
+    db.WorkWeek.Sunday.writable = False
+    db.WorkWeek.user_id.readable = False
+    db.WorkWeek.user_id.writable = False
+    db.WorkWeek.id.readable=False;
+    db.WorkWeek.Total_Hours.writable = False
+    db.WorkWeek.Approved_Status.writable=False;
+    db.WorkWeek.Manager_Comment.writable=False
+    thequery = (db.WorkWeek.user_id == auth.user.id) & (db.WorkShift.WorkWeek_id == db.WorkWeek.id)
+    fields_week = [
+       # db.WorkWeek.user_id,
+        db.WorkWeek.Monday,
+        db.WorkWeek.Sunday,
+        db.WorkWeek.Total_Hours,
+        db.WorkWeek.Approved_Status,
+        db.WorkWeek.Manager_Comment,
+    ]
+
+    fields_shift = [
+        db.WorkShift.ShiftDay,
+        db.WorkShift.WorkedTime,
+        db.WorkShift.Description,
+        db.WorkShift.Last_Changed
+    ]
+    export_classes = dict(csv=True, json=False, html=False, tsv=False, xml=False,csv_with_hidden_cols=False,tsv_with_hidden_cols=False)
+
+    links = [
+            dict(header="Mo", body = lambda row: monday_hour(row)),
+            dict(header="Tu", body = lambda row: tuesday_hour(row)),
+            dict(header="We", body = lambda row: wednesday_hour(row)),
+            dict(header="Th", body = lambda row: thursday_hour(row)),
+            dict(header="Fr", body = lambda row: friday_hour(row)),
+            dict(header="Sa", body = lambda row: saturday_hour(row)),
+            dict(header="Su", body = lambda row: sunday_hour(row)),
+        #    dict(header="", body = lambda row: detail_but(row)),
+            ]
+    links2 =[dict(header="", body = lambda row: edit_but(row))]
+    DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    first_day = request.vars.startdate or date.today() - timedelta(days=date.today().weekday())
+    if isinstance(first_day, basestring):
+        first_day = datetime.strptime(first_day, '%Y-%m-%d').date()
+
+    # Check to make sure start date is a monday
+    if first_day.weekday() != 0:
+        first_day = date.today() - timedelta(days=date.today().weekday())
+    week_start_str = 'Week of %s' % first_day.strftime('%m/%d')
+    previous_week = first_day - timedelta(days=7)
+    next_week = first_day + timedelta(days=7)
+
+    Week_constraint=(db.WorkWeek.user_id == auth.user.id)&(db.WorkWeek.Monday==first_day)
+    grid = SQLFORM.smartgrid(
+            db.WorkWeek,
+            linked_tables=['WorkShift'],
+            constraints=dict(WorkWeek=Week_constraint),
+            fields = dict(WorkWeek = fields_week, WorkShift = fields_shift),
+            create = False,
+            deletable = False,
+            details = False,
+            editable = False,
+            exportclasses=dict(WorkWeek=export_classes,WorkShift=export_classes),
+            links =dict(WorkWeek=links,WorkShift=links2),
+            )
+    previous_week_button = INPUT(_type='button', _value='Previous Week', _onclick='window.location=\'%s\';;return false' % URL('ViewHours', vars={'startdate': previous_week}))
+    next_week_button = INPUT(_type='button', _value='Next Week', _onclick='window.location=\'%s\';;return false' % URL('ViewHours', vars={'startdate': next_week}))
+
+    return dict(grid=grid, week_start=week_start_str, next_week=next_week_button, previous_week=previous_week_button)
 
 def edit_but(row):
-    workshift = db(db.WorkShift.id == row.WorkShift.id).select(db.WorkShift.WorkWeek_id)
-    week = db(db.WorkWeek.id == workshift[0].WorkWeek_id).select(db.WorkWeek.Approved_Status)
+    workshift = db(db.WorkShift.id == row.id).select(db.WorkShift.ALL).first()
+    week = db(db.WorkWeek.id == workshift.WorkWeek_id).select(db.WorkWeek.ALL).first()
     ret = ""
-    if week[0].Approved_Status != 'Approved':
-        ret = A('Edit',_class='button btn btn-sm btn-default',_href=URL(c="timereporting",f="edit_view_hours", args=[row.WorkShift.id]))
+    if week.Approved_Status != 'Approved':
+        ret = A('Edit',_class='button btn btn-sm btn-default',_href=URL(c="timereporting",f="edit_view_hours", args=[row.id]))
     return ret
 
 @auth.requires_login()
 def edit_view_hours():
     ws_id = request.args[0]
     ws = db(db.WorkShift.id == ws_id).select(db.WorkShift.WorkWeek_id)
+
     tws=db(db.WorkShift.id == ws_id)
     tws.update(Last_Changed=request.now)
-    week = db(db.WorkWeek.id == ws[0].WorkWeek_id).select(db.WorkWeek.user_id)
-    if auth.user.id == week[0].user_id:
+    week = db(db.WorkWeek.id == ws[0].WorkWeek_id).select(db.WorkWeek.ALL).first()
+    if auth.user.id == week.user_id:
         db.WorkShift.id.writable = False
         db.WorkShift.id.readable = False
         db.WorkShift.WorkWeek_id.writable = False
@@ -49,10 +95,10 @@ def edit_view_hours():
         form = SQLFORM(db.WorkShift, ws_id)
         if form.process().accepted:
 
-            redirect(URL(c="timereporting",f="ViewHours"))
+            redirect(URL(c="timereporting",f="ViewHours/WorkWeek/WorkShift.WorkWeek_id",args=[week.id]))
         return dict(form=form)
     else:
-        return redirect(URL(c="timereporting",f="ViewHours"))
+        return redirect(URL(c="timereporting",f="ViewHours/WorkWeek/WorkShift.WorkWeek_id"))
 
 @auth.requires_membership('Students')
 def AddHours():
@@ -209,6 +255,19 @@ def StudentHours():
             dict(header="", body= lambda row: reject_but(row)),
             ]
 
+    first_day = request.vars.startdate or date.today() - timedelta(days=date.today().weekday())
+    if isinstance(first_day, basestring):
+        first_day = datetime.strptime(first_day, '%Y-%m-%d').date()
+
+    # Check to make sure start date is a monday
+    if first_day.weekday() != 0:
+        first_day = date.today() - timedelta(days=date.today().weekday())
+    week_start_str = 'Week of %s' % first_day.strftime('%m/%d')
+    previous_week = first_day - timedelta(days=7)
+    next_week = first_day + timedelta(days=7)
+
+    Week_constraint=(db.WorkWeek.Monday==first_day)
+
     grid = SQLFORM.smartgrid(
             db.WorkWeek,
             linked_tables=['WorkShift'],
@@ -219,8 +278,12 @@ def StudentHours():
             editable = False,
             exportclasses=dict(WorkWeek=export_classes),
             links =dict(WorkWeek=links),
+            constraints=dict(WorkWeek=Week_constraint),
             )
-    return dict(hours=grid)
+    previous_week_button = INPUT(_type='button', _value='Previous Week', _onclick='web2py_component("%s","hourform");' % URL(c='timereporting', f='StudentHours.load', vars={'startdate':previous_week}))
+    next_week_button = INPUT(_type='button', _value='Next Week', _onclick='web2py_component("%s","hourform");' % URL(c='timereporting', f='StudentHours.load', vars={'startdate':next_week}))
+
+    return dict(hours=grid, week_start=week_start_str, next_week=next_week_button, previous_week=previous_week_button)
 
 def email_but(row):
     return BUTTON(IMG(_src=URL('static','images/email.png')),_onclick="jQuery.ajax('"+URL('email','send_hours', args=[row.id])+"');",_class='logos')
@@ -228,7 +291,7 @@ def email_but(row):
 def comments_but(row):
     return BUTTON(IMG(_src=URL('static','images/comment.png')), _onclick="show_modal("+str(row.id)+")",_class='logos')
 
-#@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
+@auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def add_comments():
     week_id = long(request.args[0])
     text = request.args[1].replace("_", " ")

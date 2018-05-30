@@ -1,3 +1,6 @@
 {{extend 'layout.html'}}
-<h1>ViewHours</h1>
+<h1>View Hours by Week</h1>
+{{=H1(T(week_start))}}
 {{=BEAUTIFY(grid)}}
+{{=previous_week}}
+{{=next_week}}

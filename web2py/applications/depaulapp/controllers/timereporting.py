@@ -144,14 +144,23 @@ def AddHours():
 
     DAYS = [first_day + timedelta(days=n) for n in range(7)]
 
-    for idx, day in enumerate(DAYS_OF_WEEK):
-        current_shift = db.WorkShift(db.WorkShift.ShiftDay == DAYS[idx])
-        if current_shift:
-            hours = current_shift.WorkedTime
-            comment = current_shift.Description
+    existing_week = db(
+            (db.WorkWeek.user_id == auth.user.id) &
+            (db.WorkWeek.Monday == DAYS[0])
+    ).select().first()
 
-            setattr(form.vars, day + '_Hours', int(hours) if hours.is_integer() else hours)
-            setattr(form.vars, day + '_Description', comment)
+    if existing_week:
+        for idx, day in enumerate(DAYS_OF_WEEK):
+            current_shift = db(
+                (db.WorkShift.ShiftDay == DAYS[idx]) &
+                (db.WorkShift.WorkWeek_id == existing_week.id)
+            ).select().first()
+            if current_shift:
+                hours = current_shift.WorkedTime
+                comment = current_shift.Description
+
+                setattr(form.vars, day + '_Hours', int(hours) if hours.is_integer() else hours)
+                setattr(form.vars, day + '_Description', comment)
 
     if form.process().accepted:
 
@@ -164,10 +173,9 @@ def AddHours():
                 # Field was blank, no hours to add
                 pass
 
-        existing_week = db.WorkShift(db.WorkShift.ShiftDay == DAYS[0])
         if total_hours > 0 or existing_week is not None:
             week = db.WorkWeek.update_or_insert(
-                db.WorkWeek.Monday == DAYS[0],
+                (db.WorkWeek.Monday == DAYS[0]) & (db.WorkWeek.user_id == auth.user.id),
                 Monday=DAYS[0],
                 Sunday=DAYS[6],
                 user_id=auth.user.id,
@@ -175,7 +183,7 @@ def AddHours():
             if week:
                 weekid = week.id
             else:
-                weekid = db.WorkWeek(db.WorkWeek.Monday == DAYS[0]).id
+                weekid = existing_week.id
 
             for idx, day in enumerate(DAYS_OF_WEEK):
                 curr_date = DAYS[idx]
@@ -187,7 +195,10 @@ def AddHours():
                     hours = 0
                 comment = getattr(form.vars, day + '_Description')
 
-                old_row = db.WorkShift(db.WorkShift.ShiftDay == curr_date)
+                old_row = db(
+                    (db.WorkShift.ShiftDay == curr_date) &
+                    (db.WorkShift.WorkWeek_id == weekid)
+                ).select().first()
 
                 if old_row:
                     old_hours = old_row.WorkedTime

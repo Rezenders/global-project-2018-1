@@ -5,22 +5,6 @@
 </style>
 <link rel="stylesheet" href="{{=URL('static','css/depaul.css')}}"/>
 
-<div><h1 class="depaul">Registered Students</h1></div>
-{{=DIV( DIV(B('First Name'), _class='col-md-3 depaul'), DIV(B('Email'), _class='col-md-3 depaul'), DIV(B('Phone Number'), _class='col-md-3 depaul'), _class='row')}}
-<hr>
-{{for user in users:}}
-	{{if (auth.has_membership(auth.id_group('Students'), user.id)) :}}
-		<div class='row top-buffer'>
-		{{=DIV(user.first_name, _class='col-md-3')}}
-		{{=DIV(user.email, _class='col-md-3')}}
-		{{=DIV(user.Phone_Number, _class='col-md-3')}}
-		{{keys = ['disabled', 'blocked', 'pending']}}
-		{{if user.registration_key not in keys :}}
-		   {{=DIV(A('Deactivate',_href=URL('deactivate_user', args=str(user.id)), _class="btn btn-sm btn-danger delete-button"), _class='col-md-3')}}
-		{{else:}}
-		   {{=DIV(A('Activate',_href=URL('activate_user', args=str(user.id)), _class="btn btn-sm btn-success"), _class='col-md-3')}}
-		{{pass}}
-		</div>
-		<hr>
-	{{pass}}
-{{pass}}
+<div><h2 class="depaul">Registered Students</h2></div>
+{{=LOAD('users', 'show_users.load', ajax=True, target="users_table")}}
+

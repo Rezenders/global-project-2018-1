@@ -6,5 +6,8 @@
 <link rel="stylesheet" href="{{=URL('static','css/depaul.css')}}"/>
 
 <div><h2 class="depaul">Registered Students</h2></div>
+{{=all}}
+{{=active}}
+{{=disabled}}
 {{=LOAD('users', 'show_users.load', ajax=True, target="users_table")}}
 

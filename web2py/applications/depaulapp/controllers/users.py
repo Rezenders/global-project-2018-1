@@ -58,7 +58,10 @@ def show_active():
 
 @auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def show_all():
-    return dict()
+    show_all = BUTTON('Show all', _onclick='web2py_component("%s","users_table");' % URL(c='users', f='show_users.load', vars={'status':'all'}))
+    show_active = BUTTON('Show active', _onclick='web2py_component("%s","users_table");' % URL(c='users', f='show_users.load', vars={'status':'active'}))
+    show_disabled = BUTTON('Show disabled', _onclick='web2py_component("%s","users_table");' % URL(c='users', f='show_users.load', vars={'status':'disabled'}))
+    return dict(all=show_all, active=show_active, disabled=show_disabled)
 
 @auth.requires(auth.has_membership('Managers') or auth.has_membership('Upper Managers'))
 def show_users():
@@ -77,11 +80,20 @@ def show_users():
         dict(header="", body = lambda row: activate_but(row)),    
         dict(header="", body = lambda row: deactivate_but(row)),    
     ]
+    
+    #student_group = auth.id_group(role='Students')
+    #role_constraint = (db.auth_membership.user_id == db.auth_user.id)&(db.auth_membership.group_id == student_group)
+    user_query = True
+    if request.vars.status == 'active':
+        user_query = user_query & (db.auth_user.registration_key == '')
+    elif request.vars.status == 'disabled':
+        user_query = user_query & (db.auth_user.registration_key != '')
 
     grid = SQLFORM.smartgrid(
            db.auth_user,
-           linked_tables =[],
-           fields = dict(auth_user=auth_fields),
+           linked_tables = [],
+           constraints = dict(auth_user=user_query),
+           fields = auth_fields,
            create = False,
            editable = False,
            details = False,

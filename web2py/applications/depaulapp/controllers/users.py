@@ -80,9 +80,9 @@ def show_users():
         dict(header="", body = lambda row: activate_but(row)),    
         dict(header="", body = lambda row: deactivate_but(row)),    
     ]
-    
-    #student_group = auth.id_group(role='Students')
-    #role_constraint = (db.auth_membership.user_id == db.auth_user.id)&(db.auth_membership.group_id == student_group)
+    if auth.has_membership(user_id=auth.user.id, role='Upper Managers'):
+        links.append(dict(header="", body = lambda row: toogle_but(row)))
+
     user_query = True
     if request.vars.status == 'active':
         user_query = user_query & (db.auth_user.registration_key == '')
@@ -102,6 +102,27 @@ def show_users():
            links = links,
            )
     return dict(users=grid)
+
+def toogle_but(row):
+    if auth.has_membership(user_id=row.id, role='Students'):
+        return BUTTON('Promote', _class='btn-sm btn-primary',_onclick="ajax('%s', [], ':eval')" % URL(c='users',f='toogle_role',args=[row.id]))
+    elif auth.has_membership(user_id=row.id, role='Managers'):
+        return BUTTON('Demote', _class='btn-sm btn-primary',_onclick="ajax('%s', [], ':eval')" % URL(c='users',f='toogle_role',args=[row.id]))
+    else:
+        return ''
+
+def toogle_role():
+    user_id = request.args[0]
+    students_id = auth.id_group(role='Students')
+    managers_id = auth.id_group(role='Managers')
+
+    if auth.has_membership(user_id=user_id, role='Students'):
+        auth.del_membership(group_id=students_id, user_id=user_id)
+        auth.add_membership(group_id=managers_id, user_id=user_id)
+    elif auth.has_membership(user_id=user_id, role='Managers'):
+        auth.del_membership(group_id=managers_id, user_id=user_id)
+        auth.add_membership(group_id=students_id, user_id=user_id)
+    return 'web2py_component("%s","users_table");' % URL(c='users',f='show_users.load');
 
 def role(row):
     user = db(db.auth_user.id == row.id).select().first()

@@ -109,7 +109,7 @@ mail.settings.login = 'testidlab@gmail.com:123yele123'
 auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = True
 auth.settings.reset_password_requires_verification = True
-
+auth.settings.create_user_groups = False
 current.auth = auth
 # -------------------------------------------------------------------------
 # Define your tables below (or better in another model file) for example
